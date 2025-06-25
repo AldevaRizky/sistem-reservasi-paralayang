@@ -18,15 +18,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
+Route::middleware(['auth', 'admin:admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 });
 
-Route::middleware(['auth', 'staff'])->prefix('staff')->as('staff.')->group(function () {
+Route::middleware(['auth', 'staff:staff'])->prefix('staff')->as('staff.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'index'])->name('dashboard');
 });
 
-Route::middleware(['auth', 'verified', 'user'])->prefix('user')->as('user.')->group(function () {
+Route::middleware(['auth', 'verified', 'user:user'])->prefix('user')->as('user.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
 });
 
