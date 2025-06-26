@@ -56,6 +56,13 @@
         ],
         [
             'type' => 'menu',
+            'name' => 'Jadwal Paralayang',
+            'url' => route('admin.paragliding-schedules.index'),
+            'icon' => 'calendar',
+            'roles' => ['admin'],
+        ],
+        [
+            'type' => 'menu',
             'name' => 'Peralatan Camping',
             'url' => route('admin.camping-equipment.index'),
             'icon' => 'briefcase',
