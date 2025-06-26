@@ -121,23 +121,39 @@
                         role="button" aria-haspopup="false" data-pc-auto-close="outside" aria-expanded="false">
                         <i data-feather="user"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown p-2 overflow-hidden">
+
+                    <div
+                        class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown p-2 overflow-hidden">
+                        @php
+                            $user = auth()->user();
+                            $detail = $user->detail;
+                            $photo =
+                                $detail && $detail->profile_photo
+                                    ? asset('storage/' . $detail->profile_photo)
+                                    : 'https://placehold.co/400';
+                        @endphp
+
                         <div class="dropdown-header flex items-center justify-between py-4 px-5 bg-primary-500">
                             <div class="flex mb-1 items-center">
                                 <div class="shrink-0">
-                                    <img src="{{ url('assets/images/user/avatar-2.jpg') }}" alt="user-image"
-                                        class="w-10 rounded-full" />
+                                    <img src="{{ $photo }}" alt="user-image"
+                                        class="w-10 h-10 rounded-full object-cover" />
                                 </div>
                                 <div class="grow ms-3">
-                                    <h6 class="mb-1 text-white">Carson Darrin 🖖</h6>
-                                    <span class="text-white">carson.darrin@company.io</span>
+                                    <h6 class="mb-1 text-white">
+                                        {{ $detail->full_name ?? $user->name }}
+                                    </h6>
+                                    <span class="text-white">
+                                        {{ $user->email }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
+
                         <div class="dropdown-body py-4 px-5">
                             <div class="profile-notification-scroll position-relative"
                                 style="max-height: calc(100vh - 225px)">
-                                <a href="#" class="dropdown-item">
+                                <a href="{{ route('profile.edit') }}" class="dropdown-item">
                                     <span>
                                         <svg class="pc-icon text-muted me-2 inline-block">
                                             <use xlink:href="#custom-setting-outline"></use>
@@ -145,7 +161,7 @@
                                         <span>Settings</span>
                                     </span>
                                 </a>
-                                <a href="#" class="dropdown-item">
+                                <a href="{{ route('profile.password') }}" class="dropdown-item">
                                     <span>
                                         <svg class="pc-icon text-muted me-2 inline-block">
                                             <use xlink:href="#custom-lock-outline"></use>
@@ -153,6 +169,7 @@
                                         <span>Change Password</span>
                                     </span>
                                 </a>
+
                                 <div class="grid my-3">
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
@@ -169,6 +186,7 @@
                         </div>
                     </div>
                 </li>
+
 
             </ul>
         </div>
