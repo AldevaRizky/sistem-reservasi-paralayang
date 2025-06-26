@@ -40,3 +40,17 @@
 <script>
     main_layout_change('vertical');
 </script>
+
+<script>
+    function setThemeMode(mode) {
+        localStorage.setItem('theme-mode', mode);
+        layout_change(mode);
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const mode = localStorage.getItem('theme-mode') || 'default';
+        layout_change(mode);
+    });
+</script>
