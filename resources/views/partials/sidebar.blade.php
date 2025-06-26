@@ -31,15 +31,22 @@
         ],
         [
             'type' => 'header',
-            'name' => 'Reservation Management',
+            'name' => 'Apps & Pages',
             'icon' => 'layers',
             'roles' => ['admin', 'staff'],
         ],
         [
             'type' => 'menu',
-            'name' => 'Paragliding Packages',
+            'name' => 'Paket Paralayang',
             'url' => route('admin.paragliding-packages.index'),
             'icon' => 'wind',
+            'roles' => ['admin'],
+        ],
+        [
+            'type' => 'menu',
+            'name' => 'Peralatan Camping',
+            'url' => route('admin.camping-equipment.index'),
+            'icon' => 'briefcase',
             'roles' => ['admin'],
         ],
         [
