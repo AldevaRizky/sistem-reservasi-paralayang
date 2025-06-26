@@ -1,4 +1,6 @@
 @php
+    use Illuminate\Support\Facades\Route;
+
     $role = auth()->user()->role;
     $routePrefix = match($role) {
         'admin' => 'admin.',
@@ -6,6 +8,12 @@
         'user' => 'user.',
         default => '',
     };
+
+    // Fungsi bantu untuk mendeteksi apakah URL saat ini aktif
+    function isMenuActive($menuUrl) {
+        $currentUrl = url()->current();
+        return str_starts_with($currentUrl, $menuUrl) ? ' active' : '';
+    }
 
     $menus = [
         [
@@ -23,46 +31,60 @@
         ],
         [
             'type' => 'header',
+            'name' => 'Reservation Management',
+            'icon' => 'layers',
+            'roles' => ['admin', 'staff'],
+        ],
+        [
+            'type' => 'menu',
+            'name' => 'Paragliding Packages',
+            'url' => route('admin.paragliding-packages.index'),
+            'icon' => 'wind',
+            'roles' => ['admin'],
+        ],
+        [
+            'type' => 'header',
             'name' => 'Other',
             'icon' => 'sidebar',
             'roles' => ['admin'],
         ],
-        [
-            'type' => 'menu',
-            'name' => 'Menu levels',
-            'url' => '#!',
-            'icon' => 'align-right',
-            'roles' => ['admin'],
-            'submenu' => [
-                [
-                    'name' => 'Level 2.1',
-                    'url' => '#!',
-                ],
-                [
-                    'name' => 'Level 2.2',
-                    'url' => '#!',
-                    'submenu' => [
-                        ['name' => 'Level 3.1', 'url' => '#!'],
-                        ['name' => 'Level 3.2', 'url' => '#!'],
-                        [
-                            'name' => 'Level 3.3',
-                            'url' => '#!',
-                            'submenu' => [
-                                ['name' => 'Level 4.1', 'url' => '#!'],
-                                ['name' => 'Level 4.2', 'url' => '#!'],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ],
+        // [
+        //     'type' => 'menu',
+        //     'name' => 'Menu levels',
+        //     'url' => '#!',
+        //     'icon' => 'align-right',
+        //     'roles' => ['admin'],
+        //     'submenu' => [
+        //         [
+        //             'name' => 'Level 2.1',
+        //             'url' => '#!',
+        //         ],
+        //         [
+        //             'name' => 'Level 2.2',
+        //             'url' => '#!',
+        //             'submenu' => [
+        //                 ['name' => 'Level 3.1', 'url' => '#!'],
+        //                 ['name' => 'Level 3.2', 'url' => '#!'],
+        //                 [
+        //                     'name' => 'Level 3.3',
+        //                     'url' => '#!',
+        //                     'submenu' => [
+        //                         ['name' => 'Level 4.1', 'url' => '#!'],
+        //                         ['name' => 'Level 4.2', 'url' => '#!'],
+        //                     ],
+        //                 ],
+        //             ],
+        //         ],
+        //     ],
+        // ],
     ];
 
-    // Rekursif submenu renderer
+    // Render submenu secara rekursif
     $renderSubmenu = function ($submenu) use (&$renderSubmenu) {
         foreach ($submenu as $sub) {
             $hasSub = isset($sub['submenu']);
-            echo '<li class="pc-item' . ($hasSub ? ' pc-hasmenu' : '') . '">';
+            $active = isMenuActive($sub['url']);
+            echo '<li class="pc-item' . ($hasSub ? ' pc-hasmenu' : '') . $active . '">';
             echo '<a href="' . $sub['url'] . '" class="pc-link">' . $sub['name'];
             if ($hasSub) {
                 echo '<span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>';
@@ -77,7 +99,7 @@
         }
     };
 
-    // Menu utama renderer
+    // Render menu utama
     $renderMenu = function ($menus) use (&$renderMenu, $renderSubmenu, $role) {
         foreach ($menus as $menu) {
             if (!in_array($role, $menu['roles'])) continue;
@@ -89,7 +111,8 @@
 
             if ($menu['type'] === 'menu') {
                 $hasSub = isset($menu['submenu']);
-                echo '<li class="pc-item' . ($hasSub ? ' pc-hasmenu' : '') . '">';
+                $active = isMenuActive($menu['url']);
+                echo '<li class="pc-item' . ($hasSub ? ' pc-hasmenu' : '') . $active . '">';
                 echo '<a href="' . $menu['url'] . '" class="pc-link">';
                 echo '<span class="pc-micon"><i data-feather="' . $menu['icon'] . '"></i></span>';
                 echo '<span class="pc-mtext">' . $menu['name'] . '</span>';
@@ -112,8 +135,7 @@
     <div class="navbar-wrapper">
         <div class="m-header flex items-center py-4 px-6 h-header-height">
             <a href="{{ route($routePrefix . 'dashboard') }}" class="b-brand flex items-center gap-3">
-                <img src="{{ asset('assets/images/logo-white.svg') }}" class="img-fluid logo logo-lg" alt="logo" />
-                <img src="{{ asset('assets/images/favicon.svg') }}" class="img-fluid logo logo-sm" alt="logo" />
+                <img src="{{ url('/assets/images/logo-white.svg') }}" alt="logo">
             </a>
         </div>
         <div class="navbar-content h-[calc(100vh_-_74px)] py-2.5">
