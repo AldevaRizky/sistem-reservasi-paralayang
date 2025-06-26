@@ -78,7 +78,10 @@
                     'name' => 'Manajemen Admin',
                     'url' => route('admin.users.admin.index'),
                 ],
-                // Tambahkan submenu lain di sini jika ada
+                [
+                    'name' => 'Manajemen Users',
+                    'url' => route('admin.users.user.index'),
+                ],
             ],
         ],
     ];
