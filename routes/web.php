@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [App\Http\Controllers\Landing\BerandaController::class, 'index']);
+Route::get('/paragliding-packages', [App\Http\Controllers\Landing\PackageController::class, 'index'])->name('packages.index');
+Route::get('/paragliding-packages/{id}', [App\Http\Controllers\Landing\PackageController::class, 'show'])->name('packages.show');
 
 Route::middleware(['auth', 'admin:admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
@@ -31,7 +33,9 @@ Route::middleware(['auth', 'staff:staff'])->prefix('staff')->as('staff.')->group
 });
 
 Route::middleware(['auth', 'verified', 'user:user'])->prefix('user')->as('user.')->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/schedule/{packageId}', [App\Http\Controllers\Landing\BookingController::class, 'selectSchedule'])->name('booking.schedule');
+    Route::post('/reserve/{scheduleId}', [App\Http\Controllers\Landing\BookingController::class, 'createReservation'])->name('booking.reserve');
+    Route::get('/payment/{transactionId}', [App\Http\Controllers\Landing\BookingController::class, 'showPaymentForm'])->name('booking.payment');
 });
 
 Route::middleware(['auth'])->group(function () {

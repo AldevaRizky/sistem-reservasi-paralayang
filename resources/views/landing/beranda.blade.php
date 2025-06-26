@@ -1,7 +1,6 @@
 @extends('layouts.landing')
-
+@section('title', 'Beranda')
 @section('content')
-    @include('partials.landing.navbar')
     @include('partials.landing.hero')
     @include('partials.landing.about')
     @include('partials.landing.contact')
