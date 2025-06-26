@@ -21,6 +21,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'admin:admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::resource('paragliding-packages', \App\Http\Controllers\Admin\ParaglidingPackageController::class);
+    Route::resource('camping-equipment', \App\Http\Controllers\Admin\CampingEquipmentController::class);
 });
 
 Route::middleware(['auth', 'staff:staff'])->prefix('staff')->as('staff.')->group(function () {
