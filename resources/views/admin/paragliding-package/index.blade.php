@@ -71,11 +71,20 @@
                                     <td>{{ $pkg->duration }}</td>
                                     <td>Rp{{ number_format($pkg->price, 0, ',', '.') }}</td>
                                     <td>{{ $pkg->capacity_per_slot }}</td>
+                                    @php
+                                        $statusText = $pkg->is_active === 'active' ? 'Aktif' : 'Tidak Aktif';
+                                        $statusColor =
+                                            $pkg->is_active === 'active'
+                                                ? 'bg-green-500 text-white'
+                                                : 'bg-red-500 text-white';
+                                    @endphp
+
                                     <td>
-                                        <span class="badge bg-{{ $pkg->is_active === 'active' ? 'success' : 'secondary' }}">
-                                            {{ ucfirst($pkg->is_active) }}
+                                        <span class="px-2 py-1 text-sm font-semibold rounded {{ $statusColor }}">
+                                            {{ $statusText }}
                                         </span>
                                     </td>
+
                                     <td>
                                         @if ($pkg->image)
                                             <img src="{{ asset('storage/' . $pkg->image) }}"
