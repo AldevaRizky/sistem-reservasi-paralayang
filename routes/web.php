@@ -23,6 +23,7 @@ Route::middleware(['auth', 'admin:admin'])->prefix('admin')->as('admin.')->group
     Route::resource('paragliding-packages', \App\Http\Controllers\Admin\ParaglidingPackageController::class);
     Route::resource('camping-equipment', \App\Http\Controllers\Admin\CampingEquipmentController::class);
     Route::resource('users/admin', \App\Http\Controllers\Admin\AdminUserController::class)->names('users.admin');
+    Route::resource('users/user', \App\Http\Controllers\Admin\UserUserController::class)->names('users.user');
 });
 
 Route::middleware(['auth', 'staff:staff'])->prefix('staff')->as('staff.')->group(function () {
