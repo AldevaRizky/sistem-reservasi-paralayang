@@ -9,12 +9,24 @@
         default => '',
     };
 
-    // Fungsi bantu untuk mendeteksi apakah URL saat ini aktif
+    // Fungsi bantu: cek apakah menu aktif
     function isMenuActive($menuUrl) {
         $currentUrl = url()->current();
         return str_starts_with($currentUrl, $menuUrl) ? ' active' : '';
     }
 
+    // Fungsi bantu: cek apakah submenu ada yang aktif
+    function isSubmenuActive($submenu) {
+        $currentUrl = url()->current();
+        foreach ($submenu as $sub) {
+            if (str_starts_with($currentUrl, $sub['url'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Menu data
     $menus = [
         [
             'type' => 'header',
@@ -55,35 +67,20 @@
             'icon' => 'sidebar',
             'roles' => ['admin'],
         ],
-        // [
-        //     'type' => 'menu',
-        //     'name' => 'Menu levels',
-        //     'url' => '#!',
-        //     'icon' => 'align-right',
-        //     'roles' => ['admin'],
-        //     'submenu' => [
-        //         [
-        //             'name' => 'Level 2.1',
-        //             'url' => '#!',
-        //         ],
-        //         [
-        //             'name' => 'Level 2.2',
-        //             'url' => '#!',
-        //             'submenu' => [
-        //                 ['name' => 'Level 3.1', 'url' => '#!'],
-        //                 ['name' => 'Level 3.2', 'url' => '#!'],
-        //                 [
-        //                     'name' => 'Level 3.3',
-        //                     'url' => '#!',
-        //                     'submenu' => [
-        //                         ['name' => 'Level 4.1', 'url' => '#!'],
-        //                         ['name' => 'Level 4.2', 'url' => '#!'],
-        //                     ],
-        //                 ],
-        //             ],
-        //         ],
-        //     ],
-        // ],
+        [
+            'type' => 'menu',
+            'name' => 'Master Data',
+            'url' => '#!',
+            'icon' => 'align-right',
+            'roles' => ['admin'],
+            'submenu' => [
+                [
+                    'name' => 'Manajemen Admin',
+                    'url' => route('admin.users.admin.index'),
+                ],
+                // Tambahkan submenu lain di sini jika ada
+            ],
+        ],
     ];
 
     // Render submenu secara rekursif
@@ -118,8 +115,14 @@
 
             if ($menu['type'] === 'menu') {
                 $hasSub = isset($menu['submenu']);
-                $active = isMenuActive($menu['url']);
-                echo '<li class="pc-item' . ($hasSub ? ' pc-hasmenu' : '') . $active . '">';
+                $isActive = isMenuActive($menu['url']);
+                $isSubmenuActive = $hasSub && isSubmenuActive($menu['submenu']);
+
+                $liClasses = 'pc-item';
+                if ($hasSub) $liClasses .= ' pc-hasmenu';
+                if ($isActive || $isSubmenuActive) $liClasses .= ' active pc-trigger';
+
+                echo '<li class="' . $liClasses . '">';
                 echo '<a href="' . $menu['url'] . '" class="pc-link">';
                 echo '<span class="pc-micon"><i data-feather="' . $menu['icon'] . '"></i></span>';
                 echo '<span class="pc-mtext">' . $menu['name'] . '</span>';
@@ -127,11 +130,13 @@
                     echo '<span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>';
                 }
                 echo '</a>';
+
                 if ($hasSub) {
                     echo '<ul class="pc-submenu">';
                     $renderSubmenu($menu['submenu']);
                     echo '</ul>';
                 }
+
                 echo '</li>';
             }
         }
