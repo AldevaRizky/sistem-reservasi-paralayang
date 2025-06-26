@@ -71,7 +71,7 @@
             'type' => 'menu',
             'name' => 'Master Data',
             'url' => '#!',
-            'icon' => 'align-right',
+            'icon' => 'database',
             'roles' => ['admin'],
             'submenu' => [
                 [
@@ -81,6 +81,10 @@
                 [
                     'name' => 'Manajemen Users',
                     'url' => route('admin.users.user.index'),
+                ],
+                [
+                    'name' => 'Manajemen Staff',
+                    'url' => route('admin.users.staff.index'),
                 ],
             ],
         ],

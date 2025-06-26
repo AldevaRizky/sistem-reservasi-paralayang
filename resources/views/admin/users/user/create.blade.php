@@ -1,12 +1,12 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Tambah User')
+@section('title', 'Tambah Users')
 
 @section('content')
     <div class="container mt-5">
         <div class="card">
             <div class="card-header">
-                <h4>Tambah User</h4>
+                <h4>Tambah Users</h4>
             </div>
             <div class="card-body">
                 <form action="{{ route('admin.users.user.store') }}" method="POST" enctype="multipart/form-data">
