@@ -9,3 +9,6 @@
 <link rel="stylesheet" href="{{ asset('assets/fonts/fontawesome.css') }}" />
 <link rel="stylesheet" href="{{ asset('assets/fonts/material.css') }}" />
 <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+
