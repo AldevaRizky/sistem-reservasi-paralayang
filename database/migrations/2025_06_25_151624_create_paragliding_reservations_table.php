@@ -14,20 +14,29 @@ return new class extends Migration
         Schema::create('paragliding_reservations', function (Blueprint $table) {
             $table->id();
 
+            // Kolom yang sudah ada
             $table->foreignId('user_id')
-                  ->nullable()
-                  ->constrained('users')
-                  ->onDelete('set null');
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('set null');
 
             $table->foreignId('schedule_id')
-                  ->nullable()
-                  ->constrained('paragliding_schedules')
-                  ->onDelete('set null');
+                ->nullable()
+                ->constrained('paragliding_schedules')
+                ->onDelete('set null');
 
             $table->foreignId('package_id')
-                  ->nullable()
-                  ->constrained('paragliding_packages')
-                  ->onDelete('set null');
+                ->nullable()
+                ->constrained('paragliding_packages')
+                ->onDelete('set null');
+
+            // --- TAMBAHAN BARU ---
+            // Menambahkan kolom untuk menampung ID staf/tandem master
+            $table->foreignId('tandem_master_id')
+                ->nullable() // Nullable jika staf belum ditugaskan
+                ->constrained('users') // Mereferensikan ke tabel 'users'
+                ->onDelete('set null'); // Jika staf dihapus, set ID ini menjadi NULL
+            // ---------------------
 
             $table->date('reservation_date')->nullable();
             $table->integer('participant_count')->nullable();
