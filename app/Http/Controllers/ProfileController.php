@@ -15,7 +15,6 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        // Pastikan user punya detail jika belum
         if (!$user->detail) {
             $user->detail()->create([
                 'full_name' => $user->name,
@@ -24,9 +23,20 @@ class ProfileController extends Controller
                 'profile_photo' => null,
                 'is_active' => 'active'
             ]);
+            $user->load('detail');
         }
 
-        return view('profile.edit', compact('user'));
+        // Tentukan layout berdasarkan role
+        $layout = in_array($user->role, ['admin', 'staff']) ? 'layouts.dashboard' : 'layouts.landing';
+
+        // --- BARU: Tentukan partial view berdasarkan role ---
+        $partialView = in_array($user->role, ['admin', 'staff']) ? 'profile.partials.admin-staff-form' : 'profile.partials.user-form';
+
+        return view('profile.edit', [
+            'user' => $user,
+            'layout' => $layout,
+            'partialView' => $partialView // <-- Kirim nama partial view
+        ]);
     }
 
     public function update(Request $request)
@@ -53,11 +63,9 @@ class ProfileController extends Controller
             if ($user->detail && $user->detail->profile_photo) {
                 Storage::disk('public')->delete($user->detail->profile_photo);
             }
-
             $detailData['profile_photo'] = $request->file('profile_photo')->store('profiles', 'public');
         }
 
-        // Buat atau update user detail berdasarkan user_id
         $user->detail()->updateOrCreate(
             ['user_id' => $user->id],
             $detailData
@@ -68,10 +76,7 @@ class ProfileController extends Controller
 
     public function destroy(Request $request)
     {
-        $request->validate([
-            'password' => 'required',
-        ]);
-
+        $request->validate(['password' => 'required']);
         $user = Auth::user();
 
         if (!Hash::check($request->password, $user->password)) {
@@ -91,7 +96,11 @@ class ProfileController extends Controller
 
     public function editPassword()
     {
-        return view('profile.password');
+        // --- PERBAIKAN DI SINI ---
+        $user = Auth::user();
+        $layout = in_array($user->role, ['admin', 'staff']) ? 'layouts.dashboard' : 'layouts.landing';
+
+        return view('profile.password', compact('layout'));
     }
 
     public function updatePassword(Request $request)
