@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany; // 1. TAMBAHKAN BARIS INI
+use Illuminate\Database\Eloquent\Relations\HasOne;       // Tambahkan juga ini untuk best practice
 
 class User extends Authenticatable
 {
@@ -41,10 +43,23 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed', // Menggunakan 'hashed' adalah praktik modern di Laravel 10+
     ];
 
-    public function detail()
+    /**
+     * Mendapatkan detail yang terhubung dengan user.
+     */
+    public function detail(): HasOne
     {
         return $this->hasOne(UserDetail::class);
+    }
+
+    /**
+     * 2. RELASI INI SUDAH BENAR
+     * Mendapatkan semua jadwal yang ditugaskan kepada user (staf) ini.
+     */
+    public function schedules(): BelongsToMany
+    {
+        return $this->belongsToMany(ParaglidingSchedule::class, 'schedule_staff', 'user_id', 'paragliding_schedule_id');
     }
 }

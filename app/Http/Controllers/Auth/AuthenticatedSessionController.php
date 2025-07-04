@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->intended(route('staff.dashboard'));
             case 'user':
             default:
-                return redirect()->intended(route('user.dashboard'));
+                return redirect()->intended(RouteServiceProvider::HOME);
         }
     }
 
