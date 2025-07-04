@@ -1,5 +1,5 @@
-<footer class="bg-gray-800 text-white py-6 mt-10">
+<footer class="bg-[#0A2025] text-white py-6">
     <div class="container mx-auto px-4 text-center">
-        &copy; {{ date('Y') }} Nama Website. All rights reserved.
+        &copy; {{ date('Y') }} Klangon Adventure. All rights reserved.
     </div>
 </footer>
