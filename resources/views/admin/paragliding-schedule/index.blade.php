@@ -38,49 +38,65 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Paket</th>
+                                <th>Nama Paket</th>
                                 <th>Tanggal</th>
-                                <th>Jam Mulai</th>
-                                <th>Jam Selesai</th>
-                                <th>Slot Tersedia</th>
+                                <th>Waktu</th>
+                                <th>Slot (Dipesan/Kuota)</th>
+                                <th>Sisa Slot</th>
                                 <th>Status</th>
+                                <th>Staf Bertugas</th>
+                                <th>Catatan</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($schedules as $schedule)
-                                <tr>
+                            @forelse ($schedules as $schedule)
+                                <tr class="{{ \Carbon\Carbon::parse($schedule->schedule_date . ' ' . $schedule->time_slot)->isPast() ? 'bg-secondary bg-opacity-10' : '' }}">
                                     <td>{{ $loop->iteration + ($schedules->currentPage() - 1) * $schedules->perPage() }}
                                     </td>
                                     <td>{{ $schedule->package->package_name ?? '-' }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($schedule->date)->format('d M Y') }}</td>
-                                    <td>{{ $schedule->start_time }}</td>
-                                    <td>{{ $schedule->end_time }}</td>
-                                    <td>{{ $schedule->available_slots }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($schedule->schedule_date)->format('d M Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($schedule->time_slot)->format('H:i') }}</td>
+                                    <td>{{ $schedule->booked_slots }} / {{ $schedule->quota }}</td>
+                                    
                                     @php
-                                        switch ($schedule->status) {
-                                            case 'available':
-                                                $statusText = 'Tersedia';
-                                                $statusColor = 'bg-green-500 text-white';
-                                                break;
-                                            case 'unavailable':
-                                                $statusText = 'Tidak Tersedia';
-                                                $statusColor = 'bg-yellow-500 text-black';
-                                                break;
-                                            case 'full':
-                                                $statusText = 'Penuh';
-                                                $statusColor = 'bg-red-500 text-white';
-                                                break;
-                                            default:
-                                                $statusText = 'Tidak Diketahui';
-                                                $statusColor = 'bg-red-500 text-black';
+                                        $availableSlots = $schedule->quota - $schedule->booked_slots;
+                                        
+                                        if ($availableSlots <= 0) {
+                                            $statusText = 'Penuh';
+                                            $statusColor = 'bg-red-500 text-white';
+                                        } else {
+                                            $statusText = 'Tersedia';
+                                            $statusColor = 'bg-green-500 text-white';
                                         }
                                     @endphp
+                                    
+                                    <td>{{ $availableSlots }}</td>
 
                                     <td>
-                                        <span class="px-2 py-1 text-sm font-semibold rounded {{ $statusColor }}">
+                                        <span class="badge {{ $statusColor }}">
                                             {{ $statusText }}
                                         </span>
+                                    </td>
+                                    
+                                    {{-- PENYESUAIAN UTAMA: Menampilkan hanya nama depan staf --}}
+                                    <td>
+                                        @forelse($schedule->staffs as $staff)
+                                            {{-- Ambil bagian pertama dari nama setelah dipecah oleh spasi --}}
+                                            <span class="badge bg-primary mb-1">{{ explode(' ', $staff->name)[0] }}</span>
+                                        @empty
+                                            -
+                                        @endforelse
+                                    </td>
+
+                                    <td>
+                                        @if($schedule->notes)
+                                            <span title="{{ $schedule->notes }}">
+                                                {{ \Illuminate\Support\Str::limit($schedule->notes, 30, '...') }}
+                                            </span>
+                                        @else
+                                            -
+                                        @endif
                                     </td>
 
                                     <td>
@@ -95,7 +111,13 @@
                                         </form>
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="10" class="text-center">
+                                        Belum ada data jadwal. Silakan <a href="{{ route('admin.paragliding-schedules.create') }}">tambah jadwal baru</a>.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -112,7 +134,7 @@
                 const form = this.closest('form');
                 Swal.fire({
                     title: 'Yakin ingin menghapus?',
-                    text: "Data tidak dapat dikembalikan!",
+                    text: "Data yang dihapus tidak dapat dikembalikan!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',

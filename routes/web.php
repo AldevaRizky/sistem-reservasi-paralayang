@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [App\Http\Controllers\Landing\BerandaController::class, 'index']);
 Route::get('/paragliding-packages', [App\Http\Controllers\Landing\PackageController::class, 'index'])->name('packages.index');
-Route::get('/paragliding-packages/{id}', [App\Http\Controllers\Landing\PackageController::class, 'show'])->name('packages.show');
+Route::get('/paragliding-packages/{id}', [App\Http\Controllers\Landing\PackageController::class, 'show'])->name('landing.packages.show')->middleware('auth');
 
 Route::middleware(['auth', 'admin:admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
