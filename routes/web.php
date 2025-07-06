@@ -19,7 +19,12 @@ Route::prefix('packages')->group(function () {
     Route::get('/', [App\Http\Controllers\Landing\PackageController::class, 'index'])->name('packages.index');
     Route::get('/{id}', [App\Http\Controllers\Landing\PackageController::class, 'show'])->name('packages.show');
     Route::post('/get-schedules', [App\Http\Controllers\Landing\PackageController::class, 'getSchedules']);
+    Route::get('/booking/confirmation/{id}', [App\Http\Controllers\Landing\PackageController::class, 'confirmation'])->middleware('auth');
     Route::post('/booking', [App\Http\Controllers\Landing\PackageController::class, 'makeBooking'])->middleware('auth');
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/my-bookings', [App\Http\Controllers\Landing\BookingController::class, 'index'])->name('bookings.index');
+    Route::post('/my-bookings/pay/{id}', [App\Http\Controllers\Landing\BookingController::class, 'pay'])->name('bookings.pay');
 });
 
 Route::middleware(['auth', 'admin:admin'])->prefix('admin')->as('admin.')->group(function () {
