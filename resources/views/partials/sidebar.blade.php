@@ -49,6 +49,13 @@
         ],
         [
             'type' => 'menu',
+            'name' => 'Data Reservasi Paralayang',
+            'url' => route('admin.paragliding-reservations.index'),
+            'icon' => 'book-open',
+            'roles' => ['admin'],
+        ],
+        [
+            'type' => 'menu',
             'name' => 'Paket Paralayang',
             'url' => route('admin.paragliding-packages.index'),
             'icon' => 'wind',
