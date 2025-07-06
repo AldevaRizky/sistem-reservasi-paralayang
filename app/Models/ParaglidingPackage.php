@@ -19,4 +19,9 @@ class ParaglidingPackage extends Model
         'image',
         'is_active',
     ];
+
+    public function reservations()
+    {
+        return $this->hasMany(ParaglidingReservation::class, 'package_id');
+    }
 }
