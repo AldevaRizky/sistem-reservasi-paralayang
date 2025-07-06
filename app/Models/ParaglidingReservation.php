@@ -16,6 +16,7 @@ class ParaglidingReservation extends Model
         'total_price',
         'reservation_status',
         'notes',
+        'staff_id',
     ];
 
     public function user(): BelongsTo
@@ -31,5 +32,13 @@ class ParaglidingReservation extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(ParaglidingPackage::class);
+    }
+
+    /**
+     * The staff assigned to this reservation.
+     */
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'staff_id')->where('role', 'staff');
     }
 }
