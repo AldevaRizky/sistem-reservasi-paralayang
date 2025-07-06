@@ -17,6 +17,9 @@ class ParaglidingReservation extends Model
         'reservation_status',
         'notes',
         'staff_id',
+        'customer_name',
+        'customer_phone',
+        'customer_address',
     ];
 
     public function user(): BelongsTo
