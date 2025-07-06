@@ -24,6 +24,14 @@ class PackageController extends Controller
         return view('landing.packages.show', compact('package'));
     }
 
+    public function confirmation($id)
+    {
+        $reservation = ParaglidingReservation::with(['package', 'schedule'])
+            ->findOrFail($id);
+
+        return view('landing.packages.confirmation', compact('reservation'));
+    }
+
     public function getSchedules(Request $request)
     {
         $request->validate([
@@ -62,7 +70,7 @@ class PackageController extends Controller
 
             $availableTimes[] = [
                 'time' => $schedule->time_slot,
-                'slots' => $isAvailable ? $remainingQuota : 'penuh',
+                'slots' => $isAvailable ? $remainingQuota : 'Penuh',
                 'available' => $isAvailable,
             ];
         }
@@ -77,6 +85,9 @@ class PackageController extends Controller
             'schedule_time' => 'required',
             'reservation_date' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addWeeks(2)->format('Y-m-d'),
             'participant_count' => 'required|integer|min:1',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:20',
+            'customer_address' => 'required|string|max:255',
         ]);
 
         $schedule = ParaglidingSchedule::where('paragliding_package_id', $request->package_id)
@@ -121,10 +132,13 @@ class PackageController extends Controller
             'total_price' => $price * $request->participant_count,
             'reservation_status' => 'pending',
             'staff_id' => $availableStaffId,
+            'customer_name' => $request->customer_name,
+            'customer_phone' => $request->customer_phone,
+            'customer_address' => $request->customer_address,
         ]);
 
         return response()->json([
-            'message' => 'Booking berhasil!',
+            'message' => 'Booking berhasil! Silakan segera lakukan pembayaran untuk mengamankan slot Anda.',
             'reservation_id' => $reservation->id,
         ]);
     }
