@@ -44,4 +44,10 @@ class ParaglidingReservation extends Model
     {
         return $this->belongsTo(User::class, 'staff_id')->where('role', 'staff');
     }
+
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class, 'reservation_id');
+    }
+
 }
