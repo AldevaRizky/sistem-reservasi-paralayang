@@ -96,10 +96,15 @@ class ProfileController extends Controller
 
     public function editPassword()
     {
-        // --- PERBAIKAN DI SINI ---
         $user = Auth::user();
         $layout = in_array($user->role, ['admin', 'staff']) ? 'layouts.dashboard' : 'layouts.landing';
 
+        // Khusus user: pakai view user.profile.password
+        if ($user->role === 'user') {
+            return view('user.profile.password', compact('layout'));
+        }
+
+        // Fallback atau default
         return view('profile.password', compact('layout'));
     }
 
