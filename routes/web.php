@@ -41,13 +41,16 @@ Route::middleware(['auth', 'staff:staff'])->prefix('staff')->as('staff.')->group
     Route::get('/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'index'])->name('dashboard');
 });
 
-Route::middleware(['auth', 'verified', 'user:user'])->prefix('user')->as('user.')->group(function () {
+Route::middleware(['auth', 'user:user'])->prefix('user')->as('user.')->group(function () {
+    Route::get('/profile/password', [ProfileController::class, 'editPassword'])->name('profile.password');
+    Route::post('/profile/password/update', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
 });
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::delete('/profile/destroy', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/profile/password', [ProfileController::class, 'editPassword'])->name('profile.password');
     Route::post('/profile/password/update', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
