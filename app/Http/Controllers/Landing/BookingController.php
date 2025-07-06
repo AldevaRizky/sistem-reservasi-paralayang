@@ -12,7 +12,7 @@ class BookingController extends Controller
 {
     public function index()
     {
-        $bookings = ParaglidingReservation::with(['package', 'schedule'])
+        $bookings = ParaglidingReservation::with(['package', 'schedule', 'transaction'])
             ->where('user_id', auth()->id())
             ->latest()
             ->get();
@@ -22,7 +22,7 @@ class BookingController extends Controller
 
     public function pay($id)
     {
-        $reservation = ParaglidingReservation::with('package')
+        $reservation = ParaglidingReservation::with(['package', 'user']) // include user for email
             ->where('user_id', auth()->id())
             ->where('id', $id)
             ->firstOrFail();
@@ -39,9 +39,20 @@ class BookingController extends Controller
             ],
             'customer_details' => [
                 'first_name' => $reservation->customer_name,
+                'email' => $reservation->user->email ?? 'noemail@example.com',
                 'phone' => $reservation->customer_phone,
-                'address' => $reservation->customer_address,
+                'billing_address' => [
+                    'first_name' => $reservation->customer_name,
+                    'phone' => $reservation->customer_phone,
+                    'address' => $reservation->customer_address,
+                ],
+                'shipping_address' => [
+                    'first_name' => $reservation->customer_name,
+                    'phone' => $reservation->customer_phone,
+                    'address' => $reservation->customer_address,
+                ]
             ],
+
             'item_details' => [[
                 'id' => $reservation->package->id,
                 'price' => $reservation->package->price,
