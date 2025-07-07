@@ -43,6 +43,8 @@ Route::middleware(['auth', 'admin:admin'])->prefix('admin')->as('admin.')->group
 
 Route::middleware(['auth', 'staff:staff'])->prefix('staff')->as('staff.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Staff\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/paragliding/reservations', [App\Http\Controllers\Staff\ParaglidingNotificationController::class, 'index'])->name('reservations.index');
+    Route::put('/paragliding/reservations/{id}/status', [App\Http\Controllers\Staff\ParaglidingNotificationController::class, 'updateStatus'])->name('reservations.updateStatus');
 });
 
 Route::middleware(['auth', 'user:user'])->prefix('user')->as('user.')->group(function () {
