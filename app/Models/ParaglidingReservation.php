@@ -14,7 +14,7 @@ class ParaglidingReservation extends Model
         'reservation_date',
         'participant_count',
         'total_price',
-        'reservation_status',
+        'reservation_status', //'pending', 'confirmed', 'cancelled', 'completed'
         'notes',
         'staff_id',
         'customer_name',
