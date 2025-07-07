@@ -10,129 +10,118 @@ use App\Models\User;
 
 class ParaglidingScheduleController extends Controller
 {
-    /**
-     * Menampilkan daftar jadwal dengan semua pilot yang bertugas.
-     */
     public function index(Request $request)
     {
-        // PENYESUAIAN: Eager load relasi 'staffs' (jamak) yang baru.
-        $query = ParaglidingSchedule::with(['package', 'staffs'])->latest('schedule_date');
+        $query = ParaglidingSchedule::with('package')->orderBy('time_slot');
 
-        if ($request->has('q') && $request->q != '') {
+        if ($request->filled('q')) {
             $search = $request->q;
-            $query->where(function ($subQuery) use ($search) {
-                $subQuery->whereHas('package', function ($q) use ($search) {
-                    $q->where('package_name', 'like', "%{$search}%");
-                })
-                    // PENYESUAIAN: Mencari berdasarkan relasi 'staffs' (jamak).
-                    ->orWhereHas('staffs', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    })
-                    ->orWhere('schedule_date', 'like', "%{$search}%");
-            });
+            $query->whereHas('package', function ($q) use ($search) {
+                $q->where('package_name', 'like', "%{$search}%");
+            })->orWhere('time_slot', 'like', "%{$search}%")
+              ->orWhere('notes', 'like', "%{$search}%");
         }
 
         $schedules = $query->paginate(10)->appends(['q' => $request->q]);
+
         return view('admin.paragliding-schedule.index', compact('schedules'));
     }
 
-    /**
-     * Menampilkan form untuk membuat jadwal baru.
-     */
     public function create()
     {
-        $packages = ParaglidingPackage::where('is_active', 'active')->get();
-        return view('admin.paragliding-schedule.create', compact('packages'));
+        $packages = ParaglidingPackage::all();
+        $staffs = User::where('role', 'staff')->get();
+
+        return view('admin.paragliding-schedule.create', compact('packages', 'staffs'));
     }
 
-    /**
-     * Menyimpan jadwal baru dan menugaskan beberapa pilot sesuai kuota.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
             'paragliding_package_id' => 'required|exists:paragliding_packages,id',
-            'schedule_date' => 'required|date',
-            'time_slot' => 'required',
-            'quota' => 'required|integer|min:1', // Kuota sekarang berarti jumlah pilot/slot.
-            'notes' => 'nullable|string'
+            'time_slot' => 'required|date_format:H:i',
+            'quota' => 'required|integer|min:1',
+            'notes' => 'nullable|string',
+            'staff_id' => 'nullable|array',
+            'staff_id.*' => 'exists:users,id',
         ]);
 
-        // PENYESUAIAN: Logika untuk mencari beberapa pilot sesuai kuota.
-        $requiredPilots = $data['quota'];
-        $availablePilots = User::where('role', 'staff')
-            ->whereHas('detail', fn($q) => $q->where('is_active', 'active'))
-            ->inRandomOrder() // Pilih secara acak
-            ->limit($requiredPilots) // Ambil sejumlah pilot yang dibutuhkan.
-            ->get();
+        $data['time_slot'] .= ':00'; // Format HH:mm:ss
 
-        // Handle jika pilot yang tersedia tidak mencukupi.
-        if ($availablePilots->count() < $requiredPilots) {
-            return back()->withInput()->withErrors(['quota' => "Pilot yang tersedia hanya {$availablePilots->count()}, tidak cukup untuk kuota {$requiredPilots}."]);
+        // Cegah duplikasi waktu untuk paket yang sama
+        $exists = ParaglidingSchedule::where('paragliding_package_id', $data['paragliding_package_id'])
+            ->where('time_slot', $data['time_slot'])
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['time_slot' => 'Paket ini sudah memiliki jadwal pada waktu tersebut.'])->withInput();
         }
 
-        $data['booked_slots'] = 0;
+        // Validasi quota vs kapasitas paket
+        $package = ParaglidingPackage::find($data['paragliding_package_id']);
+        if ($data['quota'] > $package->capacity_per_slot) {
+            return back()->withErrors(['quota' => 'Kuota melebihi kapasitas paket (' . $package->capacity_per_slot . ').'])->withInput();
+        }
 
-        // 1. Buat jadwalnya terlebih dahulu.
-        $schedule = ParaglidingSchedule::create($data);
+        // Simpan data ke database
+        $data['staff_id'] = array_map('intval', $data['staff_id'] ?? []);
 
-        // 2. PENYESUAIAN: Gunakan attach() untuk menugaskan banyak pilot.
-        $schedule->staffs()->attach($availablePilots->pluck('id'));
+        ParaglidingSchedule::create($data);
 
-        return redirect()->route('admin.paragliding-schedules.index')->with('success', 'Jadwal berhasil dibuat dengan ' . $requiredPilots . ' pilot ditugaskan.');
+        return redirect()->route('admin.paragliding-schedules.index')->with('success', 'Jadwal berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form untuk mengedit jadwal, termasuk memilih beberapa staf.
-     */
     public function edit(ParaglidingSchedule $paraglidingSchedule)
     {
-        $schedule = $paraglidingSchedule;
-        $packages = ParaglidingPackage::where('is_active', 'active')->get();
-        $staffs = User::where('role', 'staff')->whereHas('detail', fn($q) => $q->where('is_active', 'active'))->orderBy('name')->get();
+        $packages = ParaglidingPackage::all();
+        $staffs = User::where('role', 'staff')->get();
 
-        // PENYESUAIAN: Ambil ID semua staf yang saat ini ditugaskan untuk jadwal ini.
-        $assignedStaffIds = $schedule->staffs->pluck('id')->toArray();
-
-        return view('admin.paragliding-schedule.edit', compact('schedule', 'packages', 'staffs', 'assignedStaffIds'));
+        // Tidak perlu json_decode karena sudah otomatis dicasting
+        return view('admin.paragliding-schedule.edit', [
+            'paraglidingSchedule' => $paraglidingSchedule,
+            'packages' => $packages,
+            'staffs' => $staffs,
+        ]);
     }
 
-    /**
-     * Memperbarui data jadwal yang ada di database.
-     */
     public function update(Request $request, ParaglidingSchedule $paraglidingSchedule)
     {
         $data = $request->validate([
             'paragliding_package_id' => 'required|exists:paragliding_packages,id',
-            'schedule_date' => 'required|date',
-            'time_slot' => 'required',
-            'quota' => 'required|integer|min:0',
-            'booked_slots' => 'required|integer|min:0|lte:quota',
+            'time_slot' => 'required|date_format:H:i',
+            'quota' => 'required|integer|min:1',
             'notes' => 'nullable|string',
-            'staff_ids' => 'nullable|array', // PENYESUAIAN: Terima array dari multi-select.
-            'staff_ids.*' => 'exists:users,id' // Validasi setiap ID di dalam array.
+            'staff_id' => 'nullable|array',
+            'staff_id.*' => 'exists:users,id',
         ]);
 
-        // Update data dasar jadwal.
-        $paraglidingSchedule->update($data);
+        $data['time_slot'] .= ':00';
 
-        // PENYESUAIAN: Gunakan sync() untuk memperbarui daftar pilot yang bertugas.
-        if ($request->has('staff_ids')) {
-            $paraglidingSchedule->staffs()->sync($request->staff_ids);
-        } else {
-            // Jika tidak ada staf yang dipilih, hapus semua tugas.
-            $paraglidingSchedule->staffs()->sync([]);
+        $exists = ParaglidingSchedule::where('paragliding_package_id', $data['paragliding_package_id'])
+            ->where('time_slot', $data['time_slot'])
+            ->where('id', '!=', $paraglidingSchedule->id)
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['time_slot' => 'Paket ini sudah memiliki jadwal pada waktu tersebut.'])->withInput();
         }
 
-        return redirect()->route('admin.paragliding-schedules.index')->with('success', 'Jadwal berhasil diperbarui.');
+        $package = ParaglidingPackage::find($data['paragliding_package_id']);
+        if ($data['quota'] > $package->capacity_per_slot) {
+            return back()->withErrors(['quota' => 'Kuota melebihi kapasitas paket (' . $package->capacity_per_slot . ').'])->withInput();
+        }
+
+        $data['staff_id'] = array_map('intval', $data['staff_id'] ?? []);
+
+        $paraglidingSchedule->update($data);
+
+        return redirect()->route('admin.paragliding-schedules.index')->with('success', 'Jadwal berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus jadwal dari database.
-     */
     public function destroy(ParaglidingSchedule $paraglidingSchedule)
     {
         $paraglidingSchedule->delete();
-        return redirect()->route('admin.paragliding-schedules.index')->with('success', 'Jadwal berhasil dihapus.');
+
+        return redirect()->route('admin.paragliding-schedules.index')->with('success', 'Jadwal berhasil dihapus!');
     }
 }

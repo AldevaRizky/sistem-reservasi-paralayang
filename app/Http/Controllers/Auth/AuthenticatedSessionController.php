@@ -15,8 +15,13 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        // Simpan URL sebelumnya jika belum ada
+        if (!session()->has('url.intended') && $request->headers->get('referer')) {
+            session(['url.intended' => $request->headers->get('referer')]);
+        }
+
         return view('auth.login');
     }
 
@@ -26,7 +31,6 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
         $user = $request->user();

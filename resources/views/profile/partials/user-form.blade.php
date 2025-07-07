@@ -84,10 +84,12 @@
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Ganti Password</h3>
                             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pastikan akun Anda menggunakan
                                 password yang panjang dan acak agar tetap aman.</p>
-                            <a href="{{ route('profile.password') }}"
+                            <button type="button"
+                                onclick="document.getElementById('changePasswordModal').classList.remove('hidden')"
                                 class="mt-4 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
                                 Ganti Password
-                            </a>
+                            </button>
+
                         </div>
                     </div>
                     {{-- Hapus Akun --}}
@@ -151,6 +153,7 @@
                             required placeholder="Password Anda...">
                     </div>
                 </form>
+
             </div>
             <div class="bg-gray-50 dark:bg-gray-800/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button type="submit" form="deleteAccountForm"
@@ -162,6 +165,76 @@
                     Batal
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Ganti Password -->
+<div id="changePasswordModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title"
+    role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        {{-- Backdrop --}}
+        <div onclick="document.getElementById('changePasswordModal').classList.add('hidden')"
+            class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+            <form id="changePasswordForm" class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
+                method="POST" action="{{ route('user.profile.password.update') }}">
+                @csrf
+                <div class="sm:flex sm:items-start">
+                    <div
+                        class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                            stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 15v2m0-10a4 4 0 00-4 4v2a4 4 0 008 0v-2a4 4 0 00-4-4zm0 0V5m0 14h.01" />
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white" id="modal-title">Ganti
+                            Password</h3>
+                        <div class="mt-2 space-y-4">
+                            <div>
+                                <label for="current_password"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password
+                                    Saat Ini</label>
+                                <input type="password" name="current_password" id="current_password"
+                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm sm:text-sm text-gray-900 dark:text-white"
+                                    required>
+                            </div>
+                            <div>
+                                <label for="new_password"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password
+                                    Baru</label>
+                                <input type="password" name="new_password" id="new_password"
+                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm sm:text-sm text-gray-900 dark:text-white"
+                                    required>
+                            </div>
+                            <div>
+                                <label for="new_password_confirmation"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Konfirmasi
+                                    Password</label>
+                                <input type="password" name="new_password_confirmation"
+                                    id="new_password_confirmation"
+                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm sm:text-sm text-gray-900 dark:text-white"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-800/50 px-4 py-3 mt-4 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button type="submit"
+                        class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 sm:ml-3 sm:w-auto sm:text-sm">
+                        Simpan
+                    </button>
+                    <button type="button"
+                        onclick="document.getElementById('changePasswordModal').classList.add('hidden')"
+                        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 sm:mt-0 sm:w-auto sm:text-sm">
+                        Batal
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

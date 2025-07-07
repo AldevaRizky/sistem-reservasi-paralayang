@@ -17,6 +17,11 @@ class ParaglidingPackage extends Model
         'requirements',
         'capacity_per_slot',
         'image',
-        'is_active',
+        'is_active',//'active', 'inactive'
     ];
+
+    public function reservations()
+    {
+        return $this->hasMany(ParaglidingReservation::class, 'package_id');
+    }
 }

@@ -14,8 +14,12 @@ class ParaglidingReservation extends Model
         'reservation_date',
         'participant_count',
         'total_price',
-        'reservation_status',
+        'reservation_status', //'pending', 'confirmed', 'cancelled', 'completed'
         'notes',
+        'staff_id',
+        'customer_name',
+        'customer_phone',
+        'customer_address',
     ];
 
     public function user(): BelongsTo
@@ -32,4 +36,18 @@ class ParaglidingReservation extends Model
     {
         return $this->belongsTo(ParaglidingPackage::class);
     }
+
+    /**
+     * The staff assigned to this reservation.
+     */
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'staff_id')->where('role', 'staff');
+    }
+
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class, 'reservation_id');
+    }
+
 }

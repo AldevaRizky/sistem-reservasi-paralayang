@@ -16,6 +16,6 @@ class CampingEquipment extends Model
         'total_quantity',
         'available_quantity',
         'image',
-        'equipment_status',
+        'equipment_status', //'available', 'unavailable', 'damaged', 'maintenance'
     ];
 }

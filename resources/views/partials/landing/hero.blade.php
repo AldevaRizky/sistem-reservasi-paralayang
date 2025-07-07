@@ -1,6 +1,6 @@
-<section class="w-full bg-[#0A2025] pt-16 pb-20">
+<section id="hero" class="w-full bg-[#0A2025] pt-16 pb-20">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16">
-        
+
         <div class="w-full max-w-xl text-center lg:text-left flex flex-col items-center lg:items-start gap-10">
             <div class="flex flex-col gap-4">
                 <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold font-['Roboto'] leading-tight">
@@ -11,7 +11,7 @@
                     Nikmati pengalaman tak terlupakan bersama kami! Pesan tiket paralayang dan sewa perlengkapan outdoor dengan mudah, cepat, dan terpercaya.
                 </p>
             </div>
-            
+
             <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-5">
                 <a href="#paragliding-packages" class="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-lg hover:bg-green-500 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto">
                     Pesan Sekarang
@@ -26,10 +26,10 @@
                 </a>
             </div>
         </div>
-        
+
         <div class="w-full max-w-sm lg:max-w-md">
-            <img class="w-full h-auto rounded-lg shadow-2xl transition-all duration-300 ease-in-out hover:shadow-green-500/20" 
-                 src="{{ asset('assets/images/landing/paragliding.png') }}" 
+            <img class="w-full h-auto rounded-lg shadow-2xl transition-all duration-300 ease-in-out hover:shadow-green-500/20"
+                 src="{{ asset('assets/images/landing/paragliding.png') }}"
                  alt="Paragliding Image">
         </div>
     </div>
