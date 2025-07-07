@@ -9,21 +9,23 @@ use Illuminate\Support\Facades\Auth;
 
 class ParaglidingNotificationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil user login (staff)
         $user = Auth::user();
+        $search = $request->q;
 
-        // Ambil reservasi paralayang yang statusnya pending atau confirmed dan terkait dengan staff login
         $reservations = ParaglidingReservation::whereIn('reservation_status', ['pending', 'confirmed'])
             ->whereHas('schedule', function ($query) use ($user) {
                 $query->whereJsonContains('staff_id', $user->id);
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where('customer_name', 'like', '%' . $search . '%');
             })
             ->with(['user', 'schedule.package'])
             ->orderBy('reservation_date', 'desc')
             ->get();
 
-        return view('staff.paragliding.notifications', compact('reservations'));
+        return view('staff.paragliding.notifications', compact('reservations', 'search'));
     }
 
     public function updateStatus(Request $request, $id)
