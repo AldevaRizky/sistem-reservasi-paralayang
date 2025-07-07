@@ -10,10 +10,10 @@ class Transaction extends Model
     protected $fillable = [
         'reservation_id',
         'rental_id',
-        'transaction_type',
+        'transaction_type',//'paragliding', 'camping', 'combined'
         'total_payment',
         'payment_method',
-        'payment_status',
+        'payment_status', //'pending', 'paid', 'failed', 'refunded'
         'payment_proof',
         'payment_date',
         'verified_by_id',
